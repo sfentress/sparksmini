@@ -3641,19 +3641,16 @@ sparks.util.getRubric = function (id, callback, local) {
         startTry: function () {
             $('.next_button').hide();
 
-            var resistor1 = breadModel('addRandomResistor', 'resistor1/R1', 'a15,a9');
-            var resistor2 = breadModel('addRandomResistor', 'resistor2', 'c15,c9');
-            var resistor3 = breadModel('addRandomResistor', 'resistor3/R3', 'e15,e9');
 
-            breadModel('insert', 'resistor', 'b21,b15', 0, 'wire1');
-            breadModel('insert', 'resistor', 'd9,d3', 0, 'wire2');
+            var resistor1 = breadModel('addRandomResistor', 'resistor1/R1', 'b23,b17');
+            var resistor2 = breadModel('addRandomResistor', 'resistor2/R2', 'a17,a11');
+            var resistor3 = breadModel('addRandomResistor', 'resistor3/R3', 'c17,c11');
+            var resistor4 = breadModel('addRandomResistor', 'resistor4/R4', 'd11,d5');
 
-            breadModel('insert', 'wire', 'left_positive20,c21', 'wire1');
-            breadModel('insert', 'wire', 'left_negative2,a3', 'wire2');
+            breadModel('insert', 'wire', 'left_positive20,a23', 'wire1');
+            breadModel('insert', 'wire', 'left_negative3,a5', 'wire2');
 
             breadModel('updateFlash');
-
-
 
 
             this.currentQuestion = 0;

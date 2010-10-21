@@ -3612,48 +3612,46 @@ sparks.util.getRubric = function (id, callback, local) {
             this.questionsArea = $('#questions_area');
             this.reportArea = $('#report_area').hide();
 
-            $('button.submit').click(function (e) {
-                self.submitButtonClicked();
-                e.preventDefault();
+            $('button.submit').click(function (event) {
+                self.submitButtonClicked(self, event);
+                event.preventDefault();
             });
         },
 
         onFlashReady: function () {
-            sparks.flash.sendCommand('set_multimeter_visibility','true');
-            sparks.flash.sendCommand('set_probe_visibility','true');
-
             this.multimeter = new sparks.circuit.Multimeter2();
 
             this.startTry();
         },
 
-        submitButtonClicked: function () {
-            if (this.currentQuestion == 3) {
+        submitButtonClicked: function (activity, event) {
+
+            var form = jQuery(event.target).parents('.question_form');
+            activity.disableForm(this.currentQuestion);
+            var nextForm = form.nextAll("form:first");
+
+            if (nextForm.size() === 0) { //all questions answered for current session
                 this.completedTry();
             }
             else {
-                ++ this.currentQuestion;
-                this.disableForm(this.currentQuestion - 1);
-                this.enableForm(this.currentQuestion);
+              this.currentQuestion++;
+              this.enableForm(this.currentQuestion);
             }
         },
 
         startTry: function () {
             $('.next_button').hide();
 
-            var resistor1 = breadModel('addRandomResistor', 'resistor1/R1', 'a15,a9');
-            var resistor2 = breadModel('addRandomResistor', 'resistor2', 'c15,c9');
-            var resistor3 = breadModel('addRandomResistor', 'resistor3/R3', 'e15,e9');
+            var options = null;
 
-            breadModel('insert', 'resistor', 'b21,b15', 0, 'wire1');
-            breadModel('insert', 'resistor', 'd9,d3', 0, 'wire2');
+            var resistor1 = breadModel('addRandomResistor', 'resistor1/R1', 'b23,b17');
+            var resistor2 = breadModel('addRandomResistor', 'resistor2/R2', 'c17,c11');
+            var resistor3 = breadModel('addRandomResistor', 'resistor3/R3', 'd11,d5');
 
-            breadModel('insert', 'wire', 'left_positive20,c21', 'wire1');
-            breadModel('insert', 'wire', 'left_negative2,a3', 'wire2');
+            breadModel('insert', 'wire', 'left_positive20,a23', 'wire1');
+            breadModel('insert', 'wire', 'left_negative3,a5', 'wire2');
 
             breadModel('updateFlash');
-
-
 
 
             this.currentQuestion = 0;
@@ -3679,10 +3677,14 @@ sparks.util.getRubric = function (id, callback, local) {
 
         enableForm: function (k) {
             $(this.forms[k]).find('input, select, button').attr('disabled', false);
+
+            $(this.forms[k]).css("background-color", "rgb(253,255,184)");
         },
 
         disableForm: function (k) {
             $(this.forms[k]).find('input, select, button').attr('disabled', true);
+
+            $(this.forms[k]).css("background-color", "");
         },
 
         logResults: function () {
@@ -3734,46 +3736,6 @@ sparks.util.getRubric = function (id, callback, local) {
                   breadModel('mapHole', hole, newHole.nodeName());
                 }
                 this.multimeter.update();
-            } else if (name === 'probe') {
-                $('#popup').dialog();
-
-                v = breadModel('query', 'voltage', 'a23,a17');
-                t += v.toFixed(3);
-                v = breadModel('query', 'voltage', 'b17,b11');
-                t += ' ' + v.toFixed(3);
-                v = breadModel('query', 'voltage', 'c11,c5');
-                t += ' ' + v.toFixed(3);
-                $('#dbg_voltage').text(t);
-
-                breadModel('move', 'wire1', 'left_positive1,a22');
-
-                v = breadModel('query', 'resistance', 'a23,a17');
-                t = v.toFixed(3);
-                v = breadModel('query', 'resistance', 'b17,b11');
-                t += ' ' + v.toFixed(3);
-                v = breadModel('query', 'resistance', 'c11,c5');
-                t += ' ' + v.toFixed(3);
-
-                $('#dbg_resistance').text(t);
-
-                v = breadModel('query', 'current', 'a22,a23');
-                t = v.toFixed(3);
-
-                breadModel('move', 'wire1', 'left_positive1,a23');
-                breadModel('move', 'resistor1', 'a23,a16');
-                v = breadModel('query', 'current', 'a16,b17');
-                t += ' ' + v.toFixed(3);
-
-                breadModel('move', 'resistor1', 'a23,a17');
-                breadModel('move', 'resistor2', 'b17,b10');
-                v = breadModel('query', 'current', 'b10,c11');
-                t += ' ' + v.toFixed(3);
-
-                breadModel('move', 'resistor2', 'b17,b11');
-
-                $('#dbg_current').text(t);
-
-                $('#popup').dialog('close');
             } else if (name == 'multimeter_dial') {
                 console.log('changed multimeter dial'+value);
                 this.multimeter.dialPosition = value;

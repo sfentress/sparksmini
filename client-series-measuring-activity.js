@@ -1892,7 +1892,8 @@ sparks.util.getRubric = function (id, callback, local) {
 
       switch (component.kind) {
         case "resistor":
-          if (!(nodes.length == 2 && component.resistance && component.UID)) { return; }
+          if (!(nodes.length == 2 && component.UID)) { return; }
+          var resistance = !component.resistance ? 0 : component.resistance;
           line = 'R:' + component.UID + ' ';
           line = line + nodes.join(' ');
           line = line + ' R="' + component.resistance + ' Ohm"' ;
@@ -2231,9 +2232,18 @@ sparks.util.getRubric = function (id, callback, local) {
             case "resistor":
               if (typeof(arguments[2])==="string") {
                 props.resistance = Resistor.getResistance( arguments[2].split(",") );
+                props.colors = arguments[2];
               }
               else if (typeof(arguments[2])=="number") {
                 props.resistance = arguments[2];
+                props.colors = Resistor.getColors4Band( arguments[2], 0.01);
+              }
+              console.log("making a resistor")
+              if (typeof(arguments[3])==="string") {
+                props.UID = arguments[3].split("/")[0];
+                console.log(props.UID)
+                props.label = !!arguments[3].split("/")[1] ? arguments[3].split("/")[1] : null;
+                console.log(props.label)
               }
               break;
             case "wire":
@@ -2363,6 +2373,39 @@ sparks.util.getRubric = function (id, callback, local) {
 
           result = Math.round(result*Math.pow(10,5))/Math.pow(10,5);
           return  result;
+        },
+        updateFlash: function() {
+          $.each(breadBoard.components, function(name, component) {
+
+            if (!!component.connections[0] && !!component.connections[1]){
+              var location = component.connections[0].getName() + "," + component.connections[1].getName();
+
+              switch (component.kind) {
+                case "resistor":
+                  if (component.resistance > 0){
+                    sparks.flash.sendCommand('insert_component', 'resistor', name, location, '4band', component.label, component.colors);
+                  } else {
+                    sparks.flash.sendCommand('insert_component', 'resistor', name, location, 'wire', component.label, null);
+                  }
+                  break;
+                case "wire":
+                  var color;
+                  if (location.indexOf("positive") > -1){
+                    color = "0xaa0000";
+                  } else if (location.indexOf("negative") > -1){
+                    color = "0x000000";
+                  } else {
+                    if (Math.random() < 0.5){
+                      color = "0x008800";
+                    } else {
+                      color = "0x000088";
+                    }
+                  }
+                  sparks.flash.sendCommand('insert_component', 'wire', component.UID, location, color);
+                  break;
+              }
+            }
+          });
         }
       };
 
@@ -2461,8 +2504,45 @@ sparks.util.getRubric = function (id, callback, local) {
                         text = ' 1 .   ';
                     }
 
-                }
-                else if (this.dialPosition === 'r_200') {
+                } else if (this.dialPosition === 'dcv_200') {
+                     if (this.v_value < 199.95) {
+                        text = (Math.round(this.v_value * 10) * 0.1).toString();
+                        text = this.toDisplayString(text, 1);
+                    }
+                    else {
+                        text = ' 1 .   ';
+                    }
+
+                } else if (this.dialPosition === 'dcv_1000') {
+                     if (this.v_value < 999.95) {
+                        text = Math.round(this.v_value).toString();
+                        text = this.toDisplayString(text, 0);
+                    }
+                    else {
+                        text = 'h1 .   ';
+                    }
+
+                } else if (this.dialPosition === 'dcv_2000m') {
+                    var vm = this.v_value * 1000;
+                    if (vm < 1999.5) {
+                        text = Math.round(vm).toString();
+                        text = this.toDisplayString(text, 0);
+                    }
+                    else {
+                        text = ' 1 .   ';
+                    }
+
+                } else if (this.dialPosition === 'dcv_200m') {
+                    var vm = this.v_value * 1000;
+                    if (vm < 195){
+                      text = (Math.round(vm * 100) * 0.01).toString();
+                      text = this.toDisplayString(text, 1);
+                    }
+                    else {
+                        text = ' 1 .   ';
+                    }
+
+                } else if (this.dialPosition === 'r_200') {
                     if (this.r_value < 199.95) {
                         text = (Math.round(this.r_value * 10) * 0.1).toString();
                         text = this.toDisplayString(text, 1);
@@ -2470,8 +2550,7 @@ sparks.util.getRubric = function (id, callback, local) {
                     else {
                         text = ' 1   . ';
                     }
-                }
-                else if (this.dialPosition === 'r_2000') {
+                } else if (this.dialPosition === 'r_2000') {
                     if (this.r_value < 1999.5) {
                         text = Math.round(this.r_value).toString();
                         text = this.toDisplayString(text, 0);
@@ -3540,8 +3619,8 @@ sparks.util.getRubric = function (id, callback, local) {
         },
 
         onFlashReady: function () {
-            breadModel('insert', 'wire', 'left_positive1,a23', 'wire1');
-            breadModel('insert', 'wire', 'left_negative1,c5', 'wire2');
+            sparks.flash.sendCommand('set_multimeter_visibility','true');
+            sparks.flash.sendCommand('set_probe_visibility','true');
             this.multimeter = new sparks.circuit.Multimeter2();
 
             this.startTry();
@@ -3563,14 +3642,14 @@ sparks.util.getRubric = function (id, callback, local) {
 
             var options = null;
 
-            var resistor1 = breadModel('addRandomResistor', 'resistor1', 'b23,b17');
-            flash.sendCommand('insert_component', 'resistor', 'resistor1', 'b23,b17','4band',resistor1.colors);
+            var resistor1 = breadModel('addRandomResistor', 'resistor1/R1', 'b23,b17');
+            var resistor2 = breadModel('addRandomResistor', 'resistor2/R2', 'c17,c11');
+            var resistor3 = breadModel('addRandomResistor', 'resistor3/R3', 'd11,d5');
 
-            var resistor2 = breadModel('addRandomResistor', 'resistor2', 'c17,c11');
-            flash.sendCommand('insert_component', 'resistor', 'resistor', 'c17,c11','4band',resistor2.colors);
+            breadModel('insert', 'wire', 'left_positive20,a23', 'wire1');
+            breadModel('insert', 'wire', 'left_negative3,a5', 'wire2');
 
-            var resistor3 = breadModel('addRandomResistor', 'resistor3', 'd11,d5');
-            flash.sendCommand('insert_component', 'resistor', 'resistor3', 'd11,d5','4band',resistor3.colors);
+            breadModel('updateFlash');
 
 
             this.currentQuestion = 0;

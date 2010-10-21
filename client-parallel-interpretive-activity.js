@@ -3619,9 +3619,6 @@ sparks.util.getRubric = function (id, callback, local) {
         },
 
         onFlashReady: function () {
-            sparks.flash.sendCommand('set_multimeter_visibility','true');
-            sparks.flash.sendCommand('set_probe_visibility','true');
-
             this.multimeter = new sparks.circuit.Multimeter2();
 
             this.startTry();
@@ -3642,7 +3639,7 @@ sparks.util.getRubric = function (id, callback, local) {
             $('.next_button').hide();
 
             var resistor1 = breadModel('addRandomResistor', 'resistor1/R1', 'a15,a9');
-            var resistor2 = breadModel('addRandomResistor', 'resistor2', 'c15,c9');
+            var resistor2 = breadModel('addRandomResistor', 'resistor2/R2', 'c15,c9');
             var resistor3 = breadModel('addRandomResistor', 'resistor3/R3', 'e15,e9');
 
             breadModel('insert', 'resistor', 'b21,b15', 0, 'wire1');
@@ -3652,8 +3649,6 @@ sparks.util.getRubric = function (id, callback, local) {
             breadModel('insert', 'wire', 'left_negative2,a3', 'wire2');
 
             breadModel('updateFlash');
-
-
 
 
             this.currentQuestion = 0;
