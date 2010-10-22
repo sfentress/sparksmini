@@ -15,4 +15,8 @@ cd /var/www/sparks
 git reset --hard
 git pull
 cd ~
-echo "Done updating SPARKS content."
+echo "Done updating SPARKS content"
+
+# relink update script
+rm update
+ln /var/www/sparks/update.sh update
