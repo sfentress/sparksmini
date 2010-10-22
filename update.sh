@@ -18,34 +18,11 @@ git reset --hard
 git pull
 cd ~
 echo "Done updating SPARKS content"
+echo
 
-
-# Update issue files with fancy logo
-rm /etc/issue
-rm /etc/issue.net
-cat >/etc/issue <<- _EOF_
-         
-                          _        
-     ___ _ __   __ _ _ __| | _____ 
-    / __| '_ \ / _` | '__| |/ / __|
-    \__ \ |_) | (_| | |  |   <\__ \
-    |___/ .__/ \__,_|_|  |_|\_\___/
-        |_|
-        
-    Your local SPARKS server is now running!
-    
-    Go to 
-    
-           http://localhost:8888
-    
-    To see the local SPARKS website
-_EOF_
-ln /etc/issue /etc/issue.net
-
-
-# relink update script
-rm update
-ln /var/www/sparks/update.sh update
+# Run newly-updated update file
+echo "Running any newly-updated scripts"
+bash /var/www/sparks/more-updates.sh
 
 
 echo
