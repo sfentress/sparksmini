@@ -21,4 +21,5 @@ echo "Done updating SPARKS content"
 rm update
 ln /var/www/sparks/update.sh update
 
+echo
 echo "All updates complete"
