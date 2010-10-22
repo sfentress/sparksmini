@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 #
 # This is the update script for the SPARKS local server. It should be symbolically linked to the user's home directory
 # by typing
@@ -22,8 +22,9 @@ echo
 
 # Run newly-updated update file
 echo "Running any newly-updated scripts"
-bash /var/www/sparks/more-updates.sh
+bash /var/www/sparks/scripts/more-updates.sh
 
 
 echo
 echo "All updates complete"
+echo

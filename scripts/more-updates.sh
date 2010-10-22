@@ -10,10 +10,11 @@ cd ~
 echo "Updating issue file"
 rm /etc/issue
 rm /etc/issue.net
-ln /var/www/sparks/issue /etc/issue
+ln /var/www/sparks/scripts/issue /etc/issue
 ln /etc/issue /etc/issue.net
 
 
 # relink update script
 rm update
-ln /var/www/sparks/update.sh update
+ln /var/www/sparks/update.sh /usr/local/bin/update
+chmod 755 /usr/local/bin/update
