@@ -15,6 +15,6 @@ ln /etc/issue /etc/issue.net
 
 
 # relink update script
-rm update
+rm /usr/local/bin/update
 ln /var/www/sparks/update.sh /usr/local/bin/update
 chmod 755 /usr/local/bin/update
