@@ -13,6 +13,10 @@ rm /etc/issue.net
 ln /var/www/sparks/scripts/issue /etc/issue
 ln /etc/issue /etc/issue.net
 
+# link the index page
+rm /var/www/index.html
+ln -s /var/www/sparks/index.html /var/www/index.html
+
 
 # relink update script
 rm /usr/local/bin/update
