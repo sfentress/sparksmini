@@ -2238,12 +2238,14 @@ sparks.util.getRubric = function (id, callback, local) {
                 props.resistance = arguments[2];
                 props.colors = Resistor.getColors4Band( arguments[2], 0.01);
               }
-              console.log("making a resistor")
+
+              if (!!arguments[4]) {
+                props.colors = arguments[4].toString();
+              }
+
               if (typeof(arguments[3])==="string") {
                 props.UID = arguments[3].split("/")[0];
-                console.log(props.UID)
                 props.label = !!arguments[3].split("/")[1] ? arguments[3].split("/")[1] : null;
-                console.log(props.label)
               }
               break;
             case "wire":
@@ -2302,7 +2304,7 @@ sparks.util.getRubric = function (id, callback, local) {
         addRandomResistor: function(name, location, options){
           var resistor = new sparks.circuit.Resistor4band(name);
           resistor.randomize((options | null));
-          interfaces.insert('resistor', location, resistor.getRealValue(), name);
+          interfaces.insert('resistor', location, resistor.getRealValue(), name, resistor.colors);
           return resistor;
         },
         query: function(type, connections){
@@ -3206,7 +3208,6 @@ sparks.util.getRubric = function (id, callback, local) {
             }
 
             this.nominalValue = values[this.randInt(0, values.length-1)];
-
             if (options && options.realEqualsNominal) {
                 this.realValue = this.nominalValue;
             }
@@ -3566,6 +3567,317 @@ sparks.util.getRubric = function (id, callback, local) {
 
 })();
 
+/*globals sparks */
+
+/* FILE activity-log.js */
+
+(function () {
+
+    var activity = sparks.Activity;
+
+    activity.Event = function (name, value, time) {
+        this.name = name;
+        this.value = value;
+        this.time = time;
+    };
+
+    /* Log object structure
+     * - session is the unit of upload to server
+     *
+     *   SESSION
+     *     start_time:
+     *     end_time:
+     *     sections:
+     *       - section
+     *           start_time:
+     *           end_time:
+     *           events:
+     *             - event
+     *                 name:
+     *                 value:
+     *                 time:
+     *           questions:
+     *             - question
+     *                 id:
+     *                 correct_answer:
+     *                 answer:
+     *                 unit:
+     *                 correct:
+     *                 start_time:
+     *                 end_time:
+     */
+    activity.Session = function () {
+        this.events = [];
+        this.properties = [];
+        this.start_time = null;
+        this.end_time = null;
+    };
+
+    activity.ActivityLog = function ()
+    {
+
+        this.sessions = [];
+        this.numSessions = 0;
+    };
+
+    activity.ActivityLog.prototype =
+    {
+        eventNames : { start_session: 1,
+                       end_session: 1,
+                       start_section: 1,
+                       end_section: 1,
+                       start_question: 1,
+                       end_question: 1,
+                       connect: 1,
+                       disconnect: 1,
+                       make_circuit: 1,
+                       break_circuit: 1,
+                       multimeter_dial: 1,
+                       multimeter_power: 1,
+                       resistor_nominal_value: 1,
+                       resistor_real_value: 1,
+                       resistor_display_value: 1 },
+
+        beginSession : function() {
+            var session = new activity.Session();
+
+
+            this.sessions.push(session);
+            this.numSessions += 1;
+            this.log('start_session');
+        },
+
+        endSession : function() {
+            this.log('end_session');
+        },
+
+        currentSession : function() {
+            return this.sessions[this.numSessions - 1];
+        },
+
+        setValue : function(name, value) {
+          this.currentSession().properties[name] = value;
+        },
+
+        log : function(name) {
+            var now = new Date().valueOf();
+            var session = this.currentSession();
+
+            if (!this.eventNames[name]) {
+                console.log('ERROR: add: Unknown log event name ' + name);
+                session.events.push(new activity.Event('UNREGISTERED_NAME', name, now));
+                return;
+            }
+
+            switch (name)
+            {
+            case 'connect':
+              if (arguments.length < 3){
+                console.log("ERROR: logging conection needs to have two parameters");
+                return;
+              }
+              console.log('connect ' + arguments[1] + ' to ' + arguments[2]);
+              session.events.push(new activity.Event('connect', arguments[1] + '|' + arguments[2], now));
+              break;
+            case 'make_circuit':
+                session.events.push(new activity.Event('make_circuit', '', now));
+                break;
+            case 'break_circuit':
+                session.events.push(new activity.Event('break_circuit', '', now));
+                break;
+            case 'start_session':
+                session.start_time = now;
+                break;
+            case 'end_session':
+                session.end_time = now;
+                break;
+            default:
+                session.events.push(new activity.Event(name, arguments[1], now));
+            }
+        }
+    };
+
+})();
+/*globals sparks $ */
+
+(function() {
+
+  var activity = sparks.Activity;
+
+  activity.Question = function () {
+      this.prompt = '';
+      this.correct_answer = '';
+      this.answer = '';
+      this.correct_units = '';
+      this.units = '';
+      this.answerIsCorrect = false;
+      this.unitsIsCorrect = false;
+      this.start_time = null;
+      this.end_time = null;
+      this.score = 1;
+  };
+
+  activity.Assessment = function (activityLog) {
+    this.activityLog = activityLog;
+    this.questions = [];
+    this.forms = [];
+    this.userQuestions = [];
+  };
+
+  activity.Assessment.prototype =
+  {
+    addQuestion: function(prompt, correct_answer, correct_units, score) {
+      var question = new activity.Question();
+      question.prompt = prompt;
+      question.correct_answer = correct_answer;
+      question.correct_units = correct_units;
+      question.score = score;
+      this.questions.push(question);
+    },
+
+    addMeasurmentQuestion: function (prompt, value, units, score){
+
+      function html_entity_decode(str) {
+        var ta=document.createElement("textarea");
+        ta.innerHTML=str.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        return ta.value;
+      }
+
+      if (value >= 1000000){
+        var MUnits = html_entity_decode('M'+units);
+        this.addQuestion(prompt, this._round(value/1000000,2), MUnits, score);
+      } else if (value >= 1000){
+        var kUnits = html_entity_decode('k'+units);
+        this.addQuestion(prompt, this._round(value/1000,2), kUnits, score);
+      } else if (value < 0.001){
+        var uUnits = html_entity_decode('&#x00b5;'+units);
+        this.addQuestion(prompt, this._round(value * 1000000,2), uUnits, score);
+      } else if (value < 1) {
+        var mUnits = html_entity_decode('m'+units);
+        this.addQuestion(prompt, this._round(value * 1000,2), mUnits, score);
+      } else {
+        units = html_entity_decode(units);
+        this.addQuestion(prompt, this._round(value,2), units, score);
+      }
+    },
+
+    serializeQuestions: function(jqForms) {
+      var self = this;
+      jqForms.each(function (i) {
+        var form = $(this);
+        form.questions = [];
+        self.forms.push(form);
+        var inputs = form.find('input');
+        inputs.each(function (j) {
+          var question = [];
+          question.input = $(this).val();
+          var next = $(this).next();
+          if ($(next).is('select')){
+            question.select = next.val();
+          }
+          form.questions.push(question);
+          self.userQuestions.push(question);
+        });
+      });
+    },
+
+    scoreAnswers: function() {
+      var self = this;
+      $.each(this.questions, function(i, question) {
+        if (!!self.userQuestions[i]){
+          var userQuestion = self.userQuestions[i];
+          question.answer = userQuestion.input;
+          question.answer = parseFloat(question.answer);
+
+          var dif = self._sigFigs(question.answer,3) - self._sigFigs(question.correct_answer,3);
+          if (dif <= 0.5 && dif >= -0.05){
+            question.answerIsCorrect = true;
+          }
+
+          if (!!question.correct_units){
+            question.units = userQuestion.select;
+            if (question.units == question.correct_units){
+              question.unitsIsCorrect = true;
+            }
+          } else {
+            question.unitsIsCorrect = true;
+          }
+        }
+      });
+    },
+
+    generateReport: function() {
+      var $tbl = $('<table>').attr('id', 'basicTable');
+
+      $tbl.append(
+        $('<tr>').append(
+          $('<th>').text("Question"),
+          $('<th>').text("Your answer"),
+          $('<th>').text("Correct answer"),
+          $('<th>').text("Score"),
+          $('<th>').text("Notes")
+        )
+      );
+
+      var totalScore = 0;
+      var totalPossibleScore = 0;
+
+      $.each(this.questions, function(i, question){
+        var answer = !!question.answer ? question.answer + (!!question.units ? " "+question.units : '') : '';
+        var correctAnswer = question.correct_answer + (!!question.correct_units ? " "+question.correct_units : '');
+        var score = question.answerIsCorrect && question.unitsIsCorrect ? question.score : 0;
+        totalScore += score;
+        totalPossibleScore += question.score;
+        var feedback = "";
+        if (answer === '') {
+
+        } else if (!question.answerIsCorrect){
+          feedback += "The value was wrong";
+          if (!question.unitsIsCorrect){
+            feedback += " and the units were wrong";
+          }
+        } else if (!question.unitsIsCorrect){
+          feedback += "The units were wrong";
+        }
+
+        $tbl.append(
+          $('<tr>').append(
+            $('<td>').text(question.prompt),
+            $('<td>').text(answer),
+            $('<td>').text(correctAnswer),
+            $('<td>').text(score +"/" + question.score),
+            $('<td>').text(feedback)
+          )
+        );
+      });
+
+      $tbl.append(
+        $('<tr>').append(
+          $('<th>').text("Total Score:"),
+          $('<th>').text(""),
+          $('<th>').text(""),
+          $('<th>').text(totalScore + "/" + totalPossibleScore),
+          $('<th>').text("")
+        )
+      );
+
+      return $tbl;
+    },
+
+    _round: function(num, dec) {
+    	var result = Math.round( Math.round( num * Math.pow( 10, dec + 1 ) ) / Math.pow( 10, 1 ) ) / Math.pow(10,dec);
+    	return result;
+    },
+
+    _sigFigs: function(n, sig) {
+        var mult = Math.pow(10,
+            sig - Math.floor(Math.log(n) / Math.LN10) - 1);
+        return Math.round(n * mult) / mult;
+    }
+
+  };
+})();
+
 /* FILE activity.js */
 
 (function () {
@@ -3583,7 +3895,7 @@ sparks.util.getRubric = function (id, callback, local) {
     sm.Activity = function () {
         sm.Activity.uber.init.apply(this);
         this.log = new sm.ActivityLog();
-        this.reporter = new sm.Reporter($('#report_area'));
+        this.assessment = new sparks.Activity.Assessment();
         sparks.flash.activity = this;
     };
 
@@ -3612,9 +3924,9 @@ sparks.util.getRubric = function (id, callback, local) {
             this.questionsArea = $('#questions_area');
             this.reportArea = $('#report_area').hide();
 
-            $('button.submit').click(function (e) {
-                self.submitButtonClicked();
-                e.preventDefault();
+            $('button.submit').click(function (event) {
+                self.submitButtonClicked(self, event);
+                event.preventDefault();
             });
         },
 
@@ -3627,14 +3939,17 @@ sparks.util.getRubric = function (id, callback, local) {
             this.startTry();
         },
 
-        submitButtonClicked: function () {
-            if (this.currentQuestion == 3) {
+        submitButtonClicked: function (activity, event) {
+            var form = jQuery(event.target).parents('.question_form');
+            activity.disableForm(this.currentQuestion);
+            var nextForm = form.nextAll("form:first");
+
+            if (nextForm.size() === 0) { //all questions answered for current session
                 this.completedTry();
             }
             else {
-                ++ this.currentQuestion;
-                this.disableForm(this.currentQuestion - 1);
-                this.enableForm(this.currentQuestion);
+              this.currentQuestion++;
+              this.enableForm(this.currentQuestion);
             }
         },
 
@@ -3659,13 +3974,29 @@ sparks.util.getRubric = function (id, callback, local) {
             for (var i = 1; i < this.forms.length; ++i) {
                 this.disableForm(i);
             }
+
+            var r1 = resistor1.getRealValue();
+            var r2 = resistor2.getRealValue();
+            var r3 = resistor3.getRealValue();
+            var r4 = resistor4.getRealValue();
+            var rTot = r1 + 1/((1/r2)+(1/r3)) + r4;
+
+            this.assessment.addMeasurmentQuestion("Resistance of R1", r1, "&#x2126;", 1);
+            this.assessment.addMeasurmentQuestion("Resistance of R2", r2, "&#x2126;", 1);
+            this.assessment.addMeasurmentQuestion("Resistance of R3", r3, "&#x2126;", 1);
+            this.assessment.addMeasurmentQuestion("Resistance of R4", r4, "&#x2126;", 1);
+
+            this.assessment.addMeasurmentQuestion("Total Resistance", rTot, "&#x2126;", 2);
+
+            this.assessment.addMeasurmentQuestion("Voltage across R1", (9/r1), "V", 1);
+            this.assessment.addMeasurmentQuestion("Voltage across R2", (9 * ((1/r2)+(1/r3))), "V", 1);
+
+            this.assessment.addMeasurmentQuestion("Current through R1", 9 / rTot, "A", 1);
+            this.assessment.addMeasurmentQuestion("Current through R2", (9 * ((1/r2)+(1/r3))) / r2, "A", 1);
         },
 
         completedTry: function () {
             this.logResults();
-            grader = new sm.Grader(this.log.session, {});
-            feedback = grader.grade();
-            this.reporter.report(this.log.session, feedback);
             this.questionsArea.hide();
             this.reportArea.show();
             $('.next_button').show();
@@ -3676,13 +4007,20 @@ sparks.util.getRubric = function (id, callback, local) {
 
         enableForm: function (k) {
             $(this.forms[k]).find('input, select, button').attr('disabled', false);
+            $(this.forms[k]).css("background-color", "rgb(253,255,184)");
         },
 
         disableForm: function (k) {
             $(this.forms[k]).find('input, select, button').attr('disabled', true);
+            $(this.forms[k]).css("background-color", "");
         },
 
         logResults: function () {
+          console.log("generatingReport");
+          this.assessment.serializeQuestions($("form"));
+          this.assessment.scoreAnswers();
+          var table = this.assessment.generateReport();
+          this.reportArea.append(table);
         },
 
         receiveEvent: function (name, value, time) {
