@@ -1461,6 +1461,11 @@ function AC_GetArgs(args, ext, srcParamName, classid, mimeType){
 
     sparks.flash.sendCommand = function () {
       try {
+        var args = "";
+        for (var i = 0; i < arguments.length; i++){
+          args = arguments[i] + " | ";
+        }
+        console.log("SENDING TO FLASH: "+arguments.length+" "+args);
         var params = [];
         for (var i = 0; i < arguments.length; ++i) {
           params[i] = arguments[i];
@@ -4617,9 +4622,10 @@ sparks.util.getRubric = function (id, callback, local) {
             else {
                 r.randomize();
             }
+            flash.sendCommand('set_resistor_colors', this.currentResistor.id, this.currentResistor.colors);
             flash.sendCommand('reset_circuit');
             this.logResistorState();
-            console.log('currentResistor=' + sparks.activity.currentResistor);
+            console.log('currentResistor=' + sparks.activity.currentResistor.colors);
             this.multimeter.update();
         },
 
