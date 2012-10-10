@@ -1,0 +1,66 @@
+body {
+  font-family: Verdana, Arial;
+}
+a.no_deco {
+  text-decoration: none;
+}
+img.no_border {
+  border-style: none;
+}
+form {
+  display: block;
+  width: 100%;
+  padding: 3pt;
+}
+.score_item {
+  text-indent: 20px;
+  margin-bottom: 4px;
+}
+.mocassin {
+  background-color: #ffe4b5;
+}
+.tan {
+  background-color: #d2b48c;
+}
+.navaho_white {
+  background-color: #ffdead;
+}
+.burly_wood {
+  background-color: #deb887;
+}
+table {
+  border-collapse: collapse;
+}
+th {
+  border: 1px solid #f0a000;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+td {
+  border: 1px solid #f0a000;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.row_a {
+  background: #f0f0d0;
+}
+.row_b {
+  background: #f0e0b0;
+}
+
+#rcc_model {
+  border: 4px #ffbb7d solid;
+}
+
+#questions_area, .report_area {
+  font-size: 10pt;
+  border: 4px #ffbb7d solid;
+  padding-left: 10px;
+}
+
+.debug_area {
+  border: 4px solid #f0a0a0;
+  padding: 4px 10px 4px 10px;
+}
