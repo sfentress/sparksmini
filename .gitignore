@@ -1,2 +1,6 @@
 .DS_Store
 *~
+proxy/accept*
+proxy/apache.conf
+proxy/apache.pid
+proxy/apache-error.log
