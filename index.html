@@ -9,58 +9,116 @@
 
     <style>
       #HTMLLog{display:none;background:#000;color:#c00;height:100px;padding:10px;margin:10px;}
+      .box {
+        float: left;
+        font-size: .8em;
+        line-height: 130%;
+        margin-right: 50px;
+        margin-bottom: 1em;
+        min-height: 205px;
+        padding: 15px;
+        width: 243px;
+      }
+
+      ul {
+        color: #8F8F8F;
+        list-style-type: none;
+        font: bold 1.5em Helvetica, Verdana, sans-serif;
+      }
+
+      ul li ul {
+        font: normal 16 Verdana, sans-serif;
+        margin-bottom: 20px;
+      }
+
+      ul li ul li {
+        padding: 2px;
+      }
     </style>
 
 
   </head>
   <body>
-    <div style="padding:20px">
-      <div style="text-align:left">
-        <img class='no_border' src='sparks/common/icons/sparks_logo_color.jpg' width="380px" />
+    <div style="width: 920px; padding 0 20px; margin: 0 auto">
+      <div style="padding:20px">
+        <div style="text-align:left">
+          <img class='no_border' src='sparks/common/icons/sparks_logo_color.jpg' width="320px" />
+        </div>
+      <h2>
+        Welcome to Sparks!
+      </h2>
+  You are running on the local sparks server.<br/>Try out our activities by clicking the links below.
+      <ul>
+        <li>
+          <span>Resistors</span>
+            <ul>
+              <li>
+                <a href="sparks/activities/measuring-resistance/index.html">Measuring resistance</a>
+              </li>
+            </ul>
+        </li>
+        <li>
+          <span>DC Circuits</span>
+            <ul>
+              <li>
+                <a href="sparks/activities.html#series-resistances">Series Resistances</a>
+              </li>
+              <li>
+                <a href="sparks/activities.html#parallel-resistances">Parallel Resistances</a>
+              </li>
+              <li>
+                <a href="sparks/activities.html#series-parallel-resistances">Series-Parallel Resistances</a>
+              </li>
+            </ul>
+        </li>
+        <li>
+          <span>Troubleshooting DC Circuits</span>
+            <ul>
+              <li>
+                <a href="sparks/activities.html#series-parallel-g1">DC Troubleshooting: Novice</a>
+              </li>
+              <li>
+                <a href="sparks/activities.html#troubleshooting-intermediate">DC Troubleshooting: Intermediate</a>
+              </li>
+              <li>
+                <a href="sparks/activities.html#troubleshooting-master">DC Troubleshooting: Master</a>
+              </li>
+            </ul>
+        </li>
+        <li>
+          <span>AC Circuits</span>
+            <ul>
+              <li>
+                <a href="sparks/activities.html#variable-voltage-dividers">Variable Voltage Dividers</a>
+              </li>
+              <li>
+                <a href="sparks/activities.html#oscilloscope-1">RC Circuit with Oscilloscope</a>
+              </li>
+            </ul>
+        </li>
+        <li>
+          <span>Tutorials</span>
+            <ul>
+              <li>
+                <a href="sparks/tutorials/">View the tutorial listing</a>
+              </li>
+            </ul>
+        </li>
+      </ul>
+      <p></p>&nbsp;<br/>
+      <div style="text-align: center; position: relative; top: 45px;">
+        <img class='no_border' src='sparks/common/icons/concord.jpg' width="215" style="padding-right: 5px"/>
+        <img class='no_border' src='sparks/common/icons/cord-logo.gif' width="140px" style="padding-left: 10px"/>
       </div>
-    <h2>
-      Welcome to Sparks!
-    </h2>
-You are running on the local sparks server. Try out our activities by clicking the links below.
-    <ul>
-      <li>
-        <a href="sparks/activities/measuring-resistance/index.html">Measuring resistance</a>
-      </li>
-    </ul>
-    <ul>
-      <li>
-        <a href="sparks/activities.html#series-resistances">Series Resistances</a>
-      </li>
-      <li>
-        <a href="sparks/activities.html#parallel-resistances">Parallel Resistances</a>
-      </li>
-      <li>
-        <a href="sparks/activities.html#series-parallel-resistances">Series-Parallel Resistances</a>
-      </li>
-    </ul>
-    <ul>
-      <li>
-        <a href="sparks/activities.html#series-parallel-g1">DC Troubleshooting: Novice</a>
-      </li>
-      <li>
-        <a href="sparks/activities.html#troubleshooting-intermediate">DC Troubleshooting: Intermediate</a>
-      </li>
-      <li>
-        <a href="sparks/activities.html#troubleshooting-master">DC Troubleshooting: Master</a>
-      </li>
-    </ul>
-    <ul>
-      <li>
-        <a href="sparks/activities.html#variable-voltage-dividers">Variable Voltage Dividers</a>
-      </li>
-      <li>
-        <a href="sparks/activities.html#oscilloscope-1">RC Circuit with Oscilloscope</a>
-      </li>
-    </ul>
-<p></p>&nbsp;<br/>
-<div style="text-align:center">
-  <img class='no_border' src='sparks/common/icons/concord.jpg' width="200px" />
-</div>
-     </div>
+       </div>
+    </div>
+    <div class="box" style="background: url(/sparks/common/icons/mw-bg.png) no-repeat; color: white;position:  absolute;top: 190px;left: 900px;">
+      <h2>Electronics Students</h2>
+      SPARKS is like a virtual teacher looking over your shoulder and giving you tips. Challenge yourself to get a higher score. The bonus? You can play with circuits all day without changing the fuse in your DMM once!
+    </div>
+    <div class="box" style="background: url(/sparks/common/icons/more-bg.png) no-repeat; color: white;position:  absolute;top: 434px;left: 900px;">
+      <h2>Electronics Teachers</h2>
+      Use SPARKS labs with your students to easily assess which skills the class has mastered and which still need work. Each student's individual performance, every question they answer and measurement they make, is logged and reported back to you.
+    </div>
   </body>
 </html>
