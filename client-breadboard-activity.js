@@ -2305,11 +2305,13 @@ sparks.createQuestionsCSV = function(data) {
         section.meter.update();
       }
 
-      this.layoutPage();
+      this.layoutPage(true);
     },
 
-    layoutPage: function() {
-      this.hidePopups();
+    layoutPage: function(hidePopups) {
+      if (hidePopups) {
+        this.hidePopups();
+      }
       if (!!sparks.sectionController.currentPage){
         this.divs.$questionsDiv.html('');
         var $page = sparks.sectionController.currentPage.view.getView();
@@ -2383,6 +2385,11 @@ sparks.createQuestionsCSV = function(data) {
 
      hidePopups: function() {
        $('.ui-dialog').empty().remove();
+       var section = sparks.activityController.currentSection;
+       if (section && section.meter) {
+        section.meter.reset();
+        section.meter.update();
+       }
      },
 
      setEmbeddingTargets: function(targets) {
@@ -2744,8 +2751,8 @@ sparks.createQuestionsCSV = function(data) {
             question.answer = parsedAnswer.val;
 
             question.meta.dmmDial = section.meter.dmm.dialPosition;
-            question.meta.blackProbe = board.getHole(section.meter.dmm.blackProbeConnection).nodeName();
-            question.meta.redProbe = board.getHole(section.meter.dmm.redProbeConnection).nodeName();
+            question.meta.blackProbe = section.meter.dmm.blackProbeConnection ? board.getHole(section.meter.dmm.blackProbeConnection).nodeName() : null;
+            question.meta.redProbe = section.meter.dmm.redProbeConnection ? board.getHole(section.meter.dmm.redProbeConnection).nodeName() : null;
 
             if (board.components.source && typeof board.components.source.frequency !== 'undefined') {
               question.meta.frequency = board.components.source.getFrequency();
@@ -3249,14 +3256,15 @@ sparks.createQuestionsCSV = function(data) {
       }
 
       var self = this;
-      this.popup.bind('remove', function() {
-        self.popup = null;
-      });
 
       this.popup.dialog('open').dialog("widget").position({
          my: 'left top',
          at: 'center top',
          of: $("#breadboard_wrapper")
+      });
+
+      $('.ui-dialog').bind('remove', function() {
+        self.popup = null;
       });
     },
 
@@ -4625,7 +4633,7 @@ sparks.createQuestionsCSV = function(data) {
       this.currentPageIndex = this.currentPageIndex+1;
       this.currentPage = nextPage;
 
-      sparks.activity.view.layoutPage();
+      sparks.activity.view.layoutPage(false);
 
       sparks.logController.startNewSession();
     },
@@ -6559,6 +6567,8 @@ sparks.createQuestionsCSV = function(data) {
       };
 
       Breadboard.prototype.getHole = function(hole) {
+        if (!hole) return;
+
         if (hole.name){
           if (!!this.holeMap[hole.name]){
             return this.getHole(this.holeMap[hole.getName()]);
