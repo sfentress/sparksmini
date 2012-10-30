@@ -36,7 +36,9 @@ You can now find the Sparks content at http://sparks.local
 
 == Learner data ==
 
-This app will send messages to the student server in response to various events, currently starting a question and answering a question.
+This app will send messages to the student server in response to various events, currently starting a question, answering a question and entering page and section reports.
+
+The message will include an action (e.g. "submit"), a blob of data (if appropriate) and a location. The location is an ordered array defining where the event took place.
 
 Examples of data sent:
 
@@ -48,7 +50,8 @@ Examples of data sent:
 		"location": [
 			{"type":"Activity","id":"series-resistances"},
 			{"type":"Section","id":"series-a","title":"Understanding a Breadboard"},
-			{"type":"Page","id":0},{"type":"Question","id":0}
+			{"type":"Page","id":0},
+			{"type":"Question","id":0}
 		]
 	}
 
@@ -71,3 +74,7 @@ Examples of data sent:
 			"score":0
 		}
 	}
+
+	Entering reports:
+
+	As above, but with action names "enter page report" and "enter section report", and location arrays ending at the page or the section level, as appropriate.
