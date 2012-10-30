@@ -9,6 +9,8 @@ The application expects to be run from within a server, and a sample configurati
 
 By using proxies we can avoid making assumptions about the locations of the servers in the application code.
 
+
+
  == Serving via an Apache server ==
 
 To serve the activities via Apache, first copy the file apache.conf.sample to apache.conf and modify the location of the DocumentRoot as necessary. Then start the Apache server using
@@ -30,3 +32,42 @@ Then rename the file http-vhosts.conf.sample to http-vhosts.conf, modify the loc
 	apachectl graceful
 
 You can now find the Sparks content at http://sparks.local
+
+
+== Learner data ==
+
+This app will send messages to the student server in response to various events, currently starting a question and answering a question.
+
+Examples of data sent:
+
+	Entering a question:
+
+	{
+		"appId": {"id":"org.concord.sparks","name":"SPARKS","version":0.1},
+		"action": "enter question",
+		"location": [
+			{"type":"Activity","id":"series-resistances"},
+			{"type":"Section","id":"series-a","title":"Understanding a Breadboard"},
+			{"type":"Page","id":0},{"type":"Question","id":0}
+		]
+	}
+
+	Answering a question:
+
+	{
+		"appId":{"id":"org.concord.sparks","name":"SPARKS","version":0.1},
+		"action":"submit",
+		"location":[
+			{"type":"Activity","id":"series-resistances"},
+			{"type":"Section","id":"series-a","title":"Understanding a Breadboard"},
+			{"type":"Page","id":0},
+			{"type":"Question","id":0}
+		],
+		"data": {
+			"response":"A and G",
+			"solution":"B and E",
+			"feedback":"No, the breadboard doesn't work that way. Check the tutorial for more explanation.",
+			"maxScore":5,
+			"score":0
+		}
+	}
