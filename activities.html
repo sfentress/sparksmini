@@ -4,10 +4,11 @@
 
     <meta content='text/html; charset=utf-8' http-equiv='Content-Type' />
 
-    <link href='lib/jquery/css/ui-lightness/jquery-ui-1.8.custom.css' rel='stylesheet' type='text/css' />
+    <link href='lib/jquery/css/ui-lightness/jquery-ui-1.8.24.custom.css' rel='stylesheet' type='text/css' />
     <link href='http://fonts.googleapis.com/css?family=Anonymous+Pro:700' rel='stylesheet' type='text/css'>
     <link href='common/stylesheets/app.css' rel='stylesheet' type='text/css' />
     <link href='common/stylesheets/sparks.css' rel='stylesheet' type='text/css' />
+    <link href="common/stylesheets/breadboard.css" rel="stylesheet" type="text/css" >
 
     <style>
       #HTMLLog{display:none;background:#000;color:#c00;height:100px;padding:10px;margin:10px;}
@@ -24,11 +25,11 @@
 
       var _gaq = _gaq || [];
       _gaq.push(
-        ['_setAccount', 'UA-6899787-16'], 
-        ['_setAllowAnchor', true], 
-        ['_trackPageview'], 
-        ['b._setAccount', 'UA-6899787-18'], 
-        ['b._setAllowAnchor', true], 
+        ['_setAccount', 'UA-6899787-16'],
+        ['_setAllowAnchor', true],
+        ['_trackPageview'],
+        ['b._setAccount', 'UA-6899787-18'],
+        ['b._setAllowAnchor', true],
         ['b._trackPageview']
       );
 
@@ -66,7 +67,10 @@
         <div id="breadboard_wrapper">
           <div id="oscope_mini" style="display: none;"></div>
           <div id="fg_mini" style="display: none;"></div>
-          <div id="breadboard">
+          <div id="breadboard" style="width: 800px; height: 500px; display: none;">
+            <div style=" text-align: center; border: 1px solid gray;">
+              <img style="vertical-align: middle; height: 498px;" src="common/images/loading.gif"/>
+            </div>
           </div>
         </div>
         <div id="image">
