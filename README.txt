@@ -36,13 +36,13 @@ You can now find the Sparks content at http://sparks.local
 
 == Learner data ==
 
-This app will send messages to the student server in response to various events, currently starting a question, answering a question and entering page and section reports.
+This app will send messages to the student server in response to various events, currently starting a question, answering a question, entering page and section reports and blowing a DMM fuse.
 
 The message will include an action (e.g. "submit"), a blob of data (if appropriate) and a location. The location is an ordered array defining where the event took place.
 
-Examples of data sent:
+= Examples of data sent =
 
-	Entering a question:
+Entering a question:
 
 	{
 		"appId": {"id":"org.concord.sparks","name":"SPARKS","version":0.1},
@@ -55,7 +55,11 @@ Examples of data sent:
 		]
 	}
 
-	Answering a question:
+Entering reports:
+
+	As above, but with action names "enter page report" and "enter section report" and location arrays ending at the page or the section level, as appropriate.
+
+Answering a question:
 
 	{
 		"appId":{"id":"org.concord.sparks","name":"SPARKS","version":0.1},
@@ -75,6 +79,18 @@ Examples of data sent:
 		}
 	}
 
-	Entering reports:
+Student error (blowing a fuse):
 
-	As above, but with action names "enter page report" and "enter section report", and location arrays ending at the page or the section level, as appropriate.
+	This was designed to be a generic "student error" message with the specific error in data.message:
+
+	{
+		"appId": {"id":"org.concord.sparks","name":"SPARKS","version":0.1},
+		"action": "student error",
+		"location": [
+			{"type":"Activity","id":"series-f"},
+			{"type":"Section","id":"series-f","title":"Troubleshooting a Series Circuit"},
+			{"type":"Page","id":0},
+			{"type":"Question","id":0}
+		],
+		"data": { "message":"Student blew DMM fuse." }
+	}:
