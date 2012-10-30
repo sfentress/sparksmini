@@ -1,0 +1,47 @@
+#
+# Virtual Hosts
+#
+# If you want to maintain multiple domains/hostnames on your
+# machine you can setup VirtualHost containers for them. Most configurations
+# use only name-based virtual hosts so the server doesn't need to worry about
+# IP addresses. This is indicated by the asterisks in the directives below.
+#
+# Please see the documentation at
+# <URL:http://httpd.apache.org/docs/2.2/vhosts/>
+# for further details before you try to setup virtual hosts.
+#
+# You may use the command line option '-S' to verify your virtual host
+# configuration.
+
+# RESTART WITH
+# sudo apachectl graceful
+
+#
+# Use name-based virtual hosting.
+#
+NameVirtualHost *:80
+
+<VirtualHost *:80>
+  ServerName sparks.local
+
+  DocumentRoot /Users/sfentress/projects/sparksmini
+
+  ErrorLog "/Users/sfentress/logs/sparkshtml-error.log"
+  CustomLog "/Users/sfentress/logs/sparkshtml-access.log" combined
+
+  # replace this with the location of the student server if necessary
+  ProxyPass        /postData http://127.0.0.1:49377
+  ProxyPassReverse /postData http://127.0.0.1:49377
+
+  # replace this with the location of qucs if necessary
+  ProxyPass        /sparks/ http://sparks.portal.concord.org/sparks/
+  ProxyPassReverse /sparks/ http://sparks.portal.concord.org/sparks/
+
+  <Directory /Users/sfentress/projects/sparksmini>
+     AllowOverride all
+     Options -MultiViews
+  </Directory>
+</VirtualHost>
+
+
+

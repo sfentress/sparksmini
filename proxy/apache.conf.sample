@@ -13,12 +13,16 @@ LoadModule proxy_module libexec/apache2/mod_proxy.so
 LoadModule proxy_connect_module libexec/apache2/mod_proxy_connect.so
 LoadModule proxy_http_module libexec/apache2/mod_proxy_http.so
 
-# replace this with the location of qucs
+# replace these paths with the location of your sparks environment
+DocumentRoot /Users/sfentress/projects/sparksmini
+PidFile      /Users/sfentress/projects/sparksmini/proxy/apache.pid
+ErrorLog     /Users/sfentress/projects/sparksmini/proxy/apache-error.log
+LockFile     /Users/sfentress/projects/sparksmini/proxy/accept.lock
+
+# replace this with the location of the student server if necessary
+ProxyPass        /postData http://127.0.0.1:49377
+ProxyPassReverse /postData http://127.0.0.1:49377
+
+# replace this with the location of qucs if necessary
 ProxyPass        /sparks/ http://sparks.portal.concord.org/sparks/
 ProxyPassReverse /sparks/ http://sparks.portal.concord.org/sparks/
-
-# replace these paths with the location of your sparks environment
-DocumentRoot /Users/scytacki/Development/sparks
-PidFile /Users/scytacki/Development/sparks/proxy/apache.pid
-ErrorLog /Users/scytacki/Development/sparks/proxy/apache-error.log
-LockFile /Users/scytacki/Development/sparks/proxy/accept.lock
