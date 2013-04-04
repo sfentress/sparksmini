@@ -1,3 +1,7 @@
+@font-face {
+  font-family: 'Anonymous Pro';
+  src: url('Anonymous_Pro/AnonymousPro-Regular.ttf')
+}
 body {
   font-family: Verdana, Arial;
 }
